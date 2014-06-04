@@ -101,7 +101,7 @@ class DBV
         if ($this->_getAdapter()) {
             $this->schema = $this->_getSchema();
             $this->revisions = $this->_getRevisions();
-            $this->revision = $this->_getCurrentRevision();
+            $this->revision = $this->_getRevisionIndex();
         }
 
         $this->_view("index");
@@ -141,7 +141,7 @@ class DBV
     public function revisionsAction()
     {
         $revisions = isset($_POST['revisions']) ? array_filter($_POST['revisions'], 'is_numeric') : array();
-        $current_revision = $this->_getCurrentRevision();
+        $current_revision = $this->_getRevisionIndex();
 
         if (count($revisions)) {
             sort($revisions);
@@ -158,9 +158,8 @@ class DBV
                     }
                 }
 
-                if ($revision > $current_revision) {
-                    $this->_setCurrentRevision($revision);
-                }
+                $this->_setRevisionIndex($revision);
+                
                 $this->confirm(__("Executed revision #{revision}", array('revision' => "<strong>$revision</strong>")));
             }
         }
@@ -168,7 +167,7 @@ class DBV
         if ($this->_isXMLHttpRequest()) {
             $return = array(
                 'messages' => array(),
-                'revision' => $this->_getCurrentRevision()
+                'revision' => $this->_getRevisionIndex()
             );
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
@@ -333,6 +332,20 @@ class DBV
 
         return $return;
     }
+    
+    protected function _getRevisionIndex(){
+    	switch (DBV_REVISION_INDEX) {
+    		case 'LAST':
+    			return $this->_getCurrentRevision();
+    			break;
+    		case 'ALL':
+    			return $this->_getAllRevisions();
+    			break;
+    		default:
+    			$this->error("Incorrect revision index specified");
+    			break;
+    	}
+    }
 
     protected function _getCurrentRevision()
     {
@@ -351,6 +364,44 @@ class DBV
                 $this->error("Incorrect revision storage specified");
                 break;
         }
+    }
+    
+    protected function _getAllRevisions()
+    {
+    	switch (DBV_REVISION_STORAGE) {
+    		case 'FILE':
+    			$file = DBV_META_PATH . DS . 'revision';
+    			if (file_exists($file)) {
+    				$revisions = json_decode(file_get_contents($file));
+    				return is_array($revisions) ? $revisions : array();
+    			}
+    			return 0;
+    			break;
+    		case 'ADAPTER':
+    			$revisions = json_decode($this->_getAdapter()->getCurrentRevision());
+    			return is_array($revisions) ? $revisions : array();
+    			break;
+    		default:
+    			$this->error("Incorrect revision storage specified");
+    			break;
+    	}
+    }
+    
+    protected function _setRevisionIndex($revision, $current_revision = null){
+    	switch (DBV_REVISION_INDEX) {
+    		case 'LAST':
+    			if($revision >= $current_revision)
+    			{
+    				return $this->_setCurrentRevision($revision);
+    			}
+    			break;
+    		case 'ALL':
+    			return $this->_addRevision($revision);
+    			break;
+    		default:
+    			$this->error("Incorrect revision index specified");
+    			break;
+    	}
     }
 
     protected function _setCurrentRevision($revision)
@@ -371,6 +422,42 @@ class DBV
                 $this->error("Incorrect revision storage specified");
                 break;
         }
+    }
+    
+    protected function _addRevision($revision)
+    {
+    	$revisions = json_encore(array_unique(array_merge($revision, $this->_getAllRevisions())));
+    	switch (DBV_REVISION_STORAGE) {
+    		case 'FILE':
+    			$file = DBV_META_PATH . DS . 'revision';
+    			if (!@file_put_contents($file, $revisions)) {
+    				$this->error("Cannot write revision file");
+    			}
+    			break;
+    		case 'ADAPTER':
+    			if (!$this->_getAdapter()->setCurrentRevision($revisions)){
+    				$this->error("Cannot save revision to DB");
+    			}
+    			break;
+    		default:
+    			$this->error("Incorrect revision storage specified");
+    			break;
+    	}
+    }
+    
+    protected function _isRan($revision)
+    {
+    	switch (DBV_REVISION_INDEX) {
+    		case 'LAST':
+    			return ($this->_getCurrentRevision() >= $revision);
+    			break;
+    		case 'ALL':
+    			return in_array($revision, $this->_getAllRevisions());
+    			break;
+    		default:
+    			$this->error("Incorrect revision index specified");
+    			break;
+    	}
     }
 
     protected function _getRevisionFiles($revision)

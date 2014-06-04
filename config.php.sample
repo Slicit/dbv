@@ -43,6 +43,13 @@ define('DBV_META_PATH', DBV_DATA_PATH . DS . 'meta');
 define('DBV_REVISION_STORAGE', 'FILE');
 
 /**
+ * Select revision index type
+ * LAST - store only last index
+ * ALL - store individual indexes
+ */
+define('DBV_REVISION_INDEX', 'LAST');
+
+/**
  * Revision table name
  */
 define('DBV_REVISION_TABLE', 'dbv_revision');
