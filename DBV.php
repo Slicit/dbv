@@ -426,7 +426,7 @@ class DBV
     
     protected function _addRevision($revision)
     {
-    	$revisions = json_encore(array_unique(array_merge($revision, $this->_getAllRevisions())));
+    	$revisions = json_encode(array_unique(array_merge($revision, $this->_getAllRevisions())));
     	switch (DBV_REVISION_STORAGE) {
     		case 'FILE':
     			$file = DBV_META_PATH . DS . 'revision';
