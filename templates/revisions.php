@@ -165,6 +165,7 @@
                         render_messages('success', 'revisions', response.messages.success, '<?php echo __('The following actions completed successfuly:'); ?>');
                     }
 
+                    <?php if(DBV_REVISION_INDEX == 'LAST'): ?>
                     var revision = parseInt(response.revision);
                     if (!isNaN(revision)) {
                     	var rows = form.select('tr[data-revision]');
@@ -179,6 +180,23 @@
                 			row.down('input[type="checkbox"]').checked = false;
                 		});
                     }
+                    <?php else: ?>
+					var revisions = [];
+					response.revision.each(function(value){
+						revisions[value] = value;
+					});
+					var rows = form.select('tr[data-revision]');
+					rows.each(function (row) {
+						if(revisions.indexOf( row.getAttribute('data-revision') ) != -1){ 
+							row.addClassName('ran');
+                    		row.down('input[type="checkbox"]').checked = false;
+						}
+						else{
+							row.removeClassName('ran');
+                			row.down('input[type="checkbox"]').checked = true;
+						}
+					});
+                    <?php endif; ?>
 
                     Effect.ScrollTo('log', {duration: 0.2});
 				}
