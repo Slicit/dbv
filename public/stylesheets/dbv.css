@@ -66,10 +66,21 @@ h4 {
 	background-color: #F7F9FB;
 }
 a.revision-handle {
-	display: block;
+	cursor: pointer;
+	margin-right: 10px;
 }
 .ran a.revision-handle {
 	color: #999;
+	text-decoration: line-through;
+}
+a.files {
+	background-image: url(/public/images/sql.png);
+	background-repeat: no-repeat;
+	background-position: right center;
+	padding-right: 25px;
+}
+a.tracker {
+	float: right;
 }
 #revisions .heading {
     margin-bottom: 0;

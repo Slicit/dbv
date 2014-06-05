@@ -20,6 +20,7 @@
 						}
 
 						$files = $this->_getRevisionFiles($revision);
+						$class_files = count($files) ? 'files' : '';
 					?>
 					<tr data-revision="<?php echo $revision; ?>"<?php echo count($class) ? ' class="' . implode(' ', $class) . '"'  : ''; ?>>
 						<td class="center">
@@ -27,7 +28,10 @@
 						</td>
 						<td>
 							<h3 class="nomargin">
-								<a href="javascript:" class="revision-handle"><?php echo $revision; ?></a>
+								<a href="javascript:" class="revision-handle <?php echo $class_files; ?>"><?php echo $revision; ?></a>
+								<?php if(DBV_TRACKER_LINK === true): ?>
+								<a href="<?php echo str_replace('%id%', $revision, DBV_TRACKER_URI) ?>" class="tracker"><?php echo __('Tracker') ?></a>
+								<?php endif; ?>
 							</h3>
 
 							<?php if (count($files)) { ?>
