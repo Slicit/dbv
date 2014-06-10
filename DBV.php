@@ -206,6 +206,28 @@ class DBV
 
         $this->_json(array('ok' => true, 'message' => __("File #{path} successfully saved!", array('path' => "<strong>$path</strong>"))));
     }
+    
+    public function addRevisionFolderAction()
+    {
+    	$revisions = $this->_getAllRevisions();
+    	$revision = $_GET['revision'];
+
+    	$dir = DBV_REVISIONS_PATH . DS . $revision;
+    	if (!@file_exists($dir)) {
+    		if (!@mkdir($dir)){
+    			$this->_json(array('ok' => false, 'message' => __("Cannot create revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
+    			return;
+    		}
+    	}
+
+    	$this->_json(array('ok' => true, 'message' => __("Revision #{revision} successfully added!", array('revision' => "<strong>$revision</strong>")), 'html' => $this->_templateRevision($revision)));
+    }
+    
+    public function _templateRevision($revision){
+	    ob_start();
+	    include DBV_ROOT_PATH.DS.'templates/revision-single.php';
+	    return ob_get_clean();
+    }
 
     protected function _createSchemaObject($item)
     {

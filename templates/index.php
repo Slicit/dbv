@@ -22,7 +22,13 @@
 	<script type="text/javascript" src="public/scripts/codemirror/mode/mysql.js"></script>
 	<script type="text/javascript" src="public/scripts/codemirror/mode/php.js"></script>
 
+	<script type="text/javascript" src="public/scripts/jquery.js"></script>
 	<script type="text/javascript" src="public/scripts/dbv.js"></script>
+	
+	<script>
+		//Use $j instead of $ when you want jQuery stuff. Avoid conflict with prototype.js
+		$j = jQuery.noConflict();
+	</script>
 </head>
 <body>
 	<div class="navbar navbar-static-top navbar-inverse">
