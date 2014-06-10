@@ -35,6 +35,11 @@ class DBV_Exception extends Exception
 
 class DBV
 {
+	
+	const CLI_STEP_ALL = 'all';
+	const CLI_STEP_PRE = 'pre';
+	const CLI_STEP_POST = 'post';
+	
 
     protected $_action = "index";
     protected $_adapter;
@@ -155,10 +160,11 @@ class DBV
                         if (!$this->_runFile($file)) {
                             break 2;
                         }
+                        else{
+                        	$this->_setRevisionIndex($revision.'/'.basename($file));
+                        }
                     }
                 }
-
-                $this->_setRevisionIndex($revision);
                 
                 $this->confirm(__("Executed revision #{revision}", array('revision' => "<strong>$revision</strong>")));
             }
@@ -218,11 +224,95 @@ class DBV
     			$this->_json(array('ok' => false, 'message' => __("Cannot create revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
     			return;
     		}
+    		else{
+    			file_put_contents($dir.'/pre.sql', '-- auto-generated pre.sql');
+    			file_put_contents($dir.'/post.sql', '-- auto-generated post.sql');
+    			
+    			chmod($dir, 0777);
+    			chmod($dir.'/pre.sql', 0777);
+    			chmod($dir.'/post.sql', 0777);
+    		}
     	}
 
     	$this->_json(array('ok' => true, 'message' => __("Revision #{revision} successfully added!", array('revision' => "<strong>$revision</strong>")), 'html' => $this->_templateRevision($revision)));
     }
     
+    public function _cliAction($revision = 0, $step = self::CLI_STEP_ALL){
+    	
+    	$ranRevisions = $this->_getAllRevisions(); /// Toutes les revisions executées
+    	$allRevisions = $this->_getRevisions(); /// Toutes les revisions
+    	$revisionsToRun = array_diff($allRevisions, $ranRevisions); /// Différence (revisions a lancer)
+    	
+    	if( in_array($revision, $revisionsToRun) ){
+    		echo "Running '$step' single revision [$revision] ...".PHP_EOL;
+    	}
+    	else{
+    		$revs = implode(', ', $revisionsToRun);
+    		echo "Running '$step' new revisions [$revs] ...".PHP_EOL;
+    	}
+    	
+    	foreach($revisionsToRun as $revision){
+    		$this->_runFiles($revision, $files, $step);
+    	}
+
+    	//echo json_encode($revisionsToRun) ;
+    	//$this->_json($revisionsToRun);
+    	
+    	
+    	/*$final_revision = isset($_POST['revision']) ? intval($_POST['revision']) : 0;
+    	$current_revision = $this->_getCurrentRevision();
+    	$revisions = $this->_getRevisions();
+    
+    	foreach($revisions as $revision){
+    
+    		//move forward
+    		if($revision > $current_revision && $revision <= $final_revision){
+    
+    			$files = $this->_getRevisionFiles($revision);
+    			if (count($files)) {
+    				foreach ($files as $file) {
+    					$file = DBV_REVISIONS_PATH . DS . $revision . DS . $file;
+    					if (!$this->_runFile($file)) {
+    						break 2;
+    					}
+    				}
+    			}
+    
+    			//rollback
+    		}elseif($revision <= $current_revision && $revision > $final_revision){
+    
+    			$files = $this->_getRevisionRollbackFiles($revision);
+    
+    			if (count($files)) {
+    				foreach ($files as $file) {
+    					$file = DBV_REVISIONS_PATH . DS . $revision . DS . 'rollback' . DS . $file;
+    					if (!$this->_runFile($file)) {
+    						break 2;
+    					}
+    				}
+    			}
+    		}
+    	}
+    
+    	$this->_setCurrentRevision($final_revision);
+    
+    	$this->confirm(__("Jumped to revision #{revision}", array('revision' => "<strong>$final_revision</strong>")));
+    	if ($this->_isXMLHttpRequest()) {
+    		$return = array(
+    				'messages' => array(),
+    				'revision' => $this->_getCurrentRevision()
+    		);
+    		foreach ($this->_log as $message) {
+    			$return['messages'][$message['type']][] = $message['message'];
+    		}
+    		$this->_json($return);
+    
+    	} else {
+    		$this->indexAction();
+    	}*/
+    }
+    
+    /** This looks quite barbarian but ... well */
     public function _templateRevision($revision){
 	    ob_start();
 	    include DBV_ROOT_PATH.DS.'templates/revision-single.php';
@@ -260,6 +350,29 @@ class DBV
         } catch (DBV_Exception $e) {
             $this->error(($e->getCode() ? "[{$e->getCode()}] " : '') . $e->getMessage());
         }
+    }
+    
+    /// CLI specific function (need to run PRE before ...)
+    protected function _runFiles($revision, $files, $step){
+    	$result = false;
+    	$files = $this->_getRevisionFiles($revision);
+    	if(count($files)){
+	    	foreach($files as $file){
+		    	switch($step){
+		    		case DBV::CLI_STEP_ALL:
+		    				$result = $result && $this->_runFile($file);
+		    				echo "Executing $revision/$file ...".PHP_EOL;
+		    			break;
+		    		case DBV::CLI_STEP_PRE: case DBV::CLI_STEP_POST:
+		    				if(preg_match("#^".$step."#", $file)){
+		    					$result = $result && $this->_runFile($file);
+		    					echo "Executing $revision/$file ...".PHP_EOL;
+		    				}
+		    			break;
+		    	}
+	    	}
+    	}
+    	return $result;
     }
 
     protected function _runFile($file)
@@ -474,7 +587,13 @@ class DBV
     			return ($this->_getCurrentRevision() >= $revision);
     			break;
     		case 'ALL':
-    			return in_array($revision, $this->_getAllRevisions());
+    			$files = $this->_getRevisionFiles($revision);
+    			$allRevisions = $this->_getAllRevisions();
+    			$isRan = true;
+    			foreach($files as $file){
+    				$isRan = $isRan && in_array($revision.'/'.$file, $allRevisions);
+    			}
+    			return $isRan;
     			break;
     		default:
     			$this->error("Incorrect revision index specified");
@@ -493,7 +612,7 @@ class DBV
             }
         }
 
-        sort($return, SORT_REGULAR);
+        rsort($return, SORT_STRING); /// Modified sort to get pre > post
         return $return;
     }
 

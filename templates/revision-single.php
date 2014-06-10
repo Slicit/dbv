@@ -32,7 +32,9 @@
 					<div id="revision-file-<?php echo $revision; ?>-<?php echo ++$i; ?>">
 						<div class="log"></div>
 						<div class="alert alert-info heading">
-							<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px;"><?php echo __('Save file') ?></button>
+							<?php if(!$ran): ?>
+								<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px;"><?php echo __('Save file') ?></button>
+							<?php endif; ?>
 							<strong class="alert-heading"><?php echo $file; ?></strong>
 						</div>
 						<textarea data-role="editor" name="revision_files[<?php echo $revision; ?>][<?php echo $file; ?>]" rows="<?php echo $lines + 1; ?>"><?php echo $content; ?></textarea>

@@ -1,16 +1,26 @@
-<h2><?php echo __('Revisions'); ?></h2>
-<?php if (isset($this->revisions) && count($this->revisions)) { ?>
+<h2 class="pull-left"><?php echo __('Revisions'); ?></h2>
+
+	<div class="input-append pull-right">
+		<input type="text" id="revision_id" value="" class="input-large" placeholder="revision #id" />
+		<button id="add_revision" class="btn btn-success">New revision</button>
+	</div>
+	
+	<div style="clear:both"></div>
+
 	<form method="post" action="" class="nomargin" id="revisions">
-		<div class="log"></div>
+		<div class="log">
+			<?php if (!isset($this->revisions) || count($this->revisions)==0): ?>
+			<div class="alert alert-error"><button class="close pull-right">×</button>
+				<ul class="unstyled nomargin">
+					<li class="last"><?php echo __('No revisions in #{path}', array('path' => '<strong>' . DBV_REVISIONS_PATH . '</strong>')) ?></li>
+				</ul>
+			</div>
+			<?php endif; ?>
+		</div>
 
 		
 		<h2>
 			<input type="submit" class="btn btn-primary" value="Run selected revisions" />
-			&nbsp;
-			<div class="input-append pull-right">
-				<input type="text" id="revision_id" name="revision_id" value="" class="input-large" placeholder="revision #id" />
-				<button id="add_revision" class="btn btn-success">New revision</button>
-			</div>
 		</h2>
 		
 		
@@ -31,11 +41,9 @@
 		</table>
 		<input type="submit" class="btn btn-primary" value="Run selected revisions" />
 	</form>
-<?php } else { ?>
-	<div class="alert alert-info nomargin">
-		<?php echo __('No revisions in #{path}', array('path' => '<strong>' . DBV_REVISIONS_PATH . '</strong>')) ?>
-	</div>
-<?php } ?>
+
+	
+
 <script type="text/javascript">
 	document.observe('dom:loaded', function () {
 		var form = $('revisions');
@@ -43,34 +51,30 @@
 			return;
 		}
 
-		var textareas = form.select('textarea');
-		textareas.each(function (textarea) {
-			textarea['data-editor'] = CodeMirror.fromTextArea(textarea, {
-				mode: "text/x-mysql",
-				tabMode: "indent",
-				matchBrackets: true,
-				autoClearEmptyLines: true,
-				lineNumbers: true,
-				theme: 'default'
+		function reloadCodeMirror(){
+			var textareas = $j('#revisions').find('textarea');
+			textareas.each(function(){
+				this['data-editor'] = CodeMirror.fromTextArea(this, {
+					mode: "text/x-mysql",
+					tabMode: "indent",
+					matchBrackets: true,
+					autoClearEmptyLines: true,
+					lineNumbers: true,
+					theme: 'default'
+				});
 			});
-		});
+		}
 
-		$$('.revision-handle').invoke('observe', 'click', function (event) {
-			var element = event.findElement('.revision-handle');
-			var container = element.up('td').down('.revision-files');
-			if (container) {
-				container.toggle();
-				if (!container.visible()) {
-					return;
-				}
+		reloadCodeMirror();
 
-				var textareas = container.select('textarea[data-role="editor"]');
-				if (textareas) {
-					textareas.each(function (textarea) {
-						textarea['data-editor'].refresh();
-					});
-				}
-			}
+		$j(document).on('click', '.revision-handle', function(event){
+			var files = $j(this).parents('td').children('.revision-files');
+			files.toggle();
+
+			var textareas = $j('textarea[data-role="editor"]');
+			textareas.each( function(){
+				this['data-editor'].refresh();
+			});
 		});
 
 		$$('button[data-role="editor-save"]').invoke('observe', 'click', function (event) {
@@ -105,6 +109,13 @@
 
 
 		/** Add revision */
+		$j('#revision_id').on('keyup', function(event){
+			var key = event.keyCode || event.which;
+			if(key == 13){
+				$j('#add_revision').trigger('click');
+			}
+		});
+		
 		$j(document).on('click', '#add_revision', function(event){
 			event.preventDefault();
 
@@ -123,6 +134,8 @@
 					render_messages('success', 'revisions', response.message);
 
 					$j('#body_revisions').prepend(response.html);
+
+					reloadCodeMirror();
 				}
 			});
 		});
@@ -181,6 +194,7 @@
                     <?php else: ?>
 					var revisions = [];
 					response.revision.each(function(value){
+						value = value.split('/')[0];
 						revisions[value] = value;
 					});
 					var rows = form.select('tr[data-revision]');
