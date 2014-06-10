@@ -10,7 +10,7 @@
 ?>
 <tr data-revision="<?php echo $revision; ?>"<?php echo count($class) ? ' class="' . implode(' ', $class) . '"'  : ''; ?>>
 	<td class="center">
-		<input type="checkbox" name="revisions[]" value="<?php echo $revision; ?>"<?php echo $ran ? '' : ' checked="checked"'; ?> style="margin-top: 7px;" />
+		<input type="checkbox" name="revisions[]" class="toggle-cb" value="<?php echo $revision; ?>"<?php echo $ran ? '' : ' checked="checked"'; ?> style="margin-top: 7px;" />
 	</td>
 	<td>
 		<h3 class="nomargin">

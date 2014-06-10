@@ -11,23 +11,24 @@
 	<link rel="stylesheet" type="text/css" media="screen" href="public/stylesheets/codemirror.css" />
 
 	<script type="text/javascript">
-		var APP = {};
+		//var APP = {};
 	</script>
 
-	<script type="text/javascript" src="public/scripts/prototype.js"></script>
-	<script type="text/javascript" src="public/scripts/builder.js"></script>
-	<script type="text/javascript" src="public/scripts/effects.js"></script>
+	<!-- script type="text/javascript" src="public/scripts/prototype.js"></script-->
+	<!-- script type="text/javascript" src="public/scripts/builder.js"></script-->
+	<!-- script type="text/javascript" src="public/scripts/effects.js"></script-->
 
 	<script type="text/javascript" src="public/scripts/codemirror/codemirror.js"></script>
 	<script type="text/javascript" src="public/scripts/codemirror/mode/mysql.js"></script>
 	<script type="text/javascript" src="public/scripts/codemirror/mode/php.js"></script>
 
 	<script type="text/javascript" src="public/scripts/jquery.js"></script>
+	<script type="text/javascript" src="public/scripts/jquery.tablesorter.min.js"></script>
 	<script type="text/javascript" src="public/scripts/dbv.js"></script>
 	
 	<script>
 		//Use $j instead of $ when you want jQuery stuff. Avoid conflict with prototype.js
-		$j = jQuery.noConflict();
+		//$j = jQuery.noConflict();
 	</script>
 </head>
 <body>

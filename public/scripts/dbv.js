@@ -1,20 +1,11 @@
-document.observe("dom:loaded", function () {
-    $$('th input[type="checkbox"]').invoke('observe', 'click', function (event) {
-        var column = this.up('tr').select('th').indexOf(this.up('th'));
-        var checkboxes = this.up('table').select('tr td:nth-child('+ (column + 1) +') input[type="checkbox"][disabled!="true"]');
-        checkboxes.each((function (checkbox) {
-            checkbox.checked = this.checked;
-        }).bind(this));
-    });
-});
-
+/** Clear messages */
 function clear_messages(container) {
-    container = $(container);
-    container.select('.alert-success', '.alert-error').invoke('remove');
+    $(container).find('.alert-success, .alert-error').remove();
 }
 
+/** Rendering messages inside the container */
 function render_messages(type, container, messages, heading) {
-    var element = new Element('div', {
+    /**var element = new Element('div', {
         className: 'alert alert-' + type
     });
 
@@ -50,6 +41,21 @@ function render_messages(type, container, messages, heading) {
 
     element.insert(list);
 
-    $(container).down('.log').insert(element);
+    $(container).down('.log').insert(element);*/
+}
+
+/** Reload codemirror editors */
+function reloadCodeMirror(){
+	var textareas = $('#revisions').find('textarea');
+	textareas.each(function(){
+		this['data-editor'] = CodeMirror.fromTextArea(this, {
+			mode: "text/x-mysql",
+			tabMode: "indent",
+			matchBrackets: true,
+			autoClearEmptyLines: true,
+			lineNumbers: true,
+			theme: 'default'
+		});
+	});
 }
 

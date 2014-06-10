@@ -54,7 +54,7 @@
     </form>
 
     <script type="text/javascript">
-        $('schema').select('button[data-role]').invoke('observe', 'click', function (event) {
+        /**$('schema').select('button[data-role]').invoke('observe', 'click', function (event) {
             event.stop();
 
             var form = this.up('form');
@@ -103,7 +103,7 @@
                     Effect.ScrollTo('log', {duration: 0.2});
                 }
             });
-        });
+        });*/
     </script>
 <?php } else { ?>
 	<div class="alert alert-info nomargin"><?php echo __('No schema objects found on disk or in the database.'); ?></div>

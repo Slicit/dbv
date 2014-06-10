@@ -23,6 +23,7 @@ $dbv = DBV::instance();
 /// Définition des arguments pour l'action
 $revision = 0;
 $step = DBV::CLI_STEP_ALL;
+$force = false;
 
 switch($argv[1]){
 	case DBV::CLI_STEP_ALL: case DBV::CLI_STEP_PRE: case DBV::CLI_STEP_POST:
@@ -36,4 +37,8 @@ if(isset($argv[2])){
 	$revision = $argv[2];
 }
 
-$dbv->_cliAction($revision, $step);
+if(isset($argv[3]) && $argv[3] == '--force'){
+	$force = true;
+}
+
+$dbv->_cliAction($revision, $step, $force);

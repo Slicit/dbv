@@ -245,15 +245,20 @@ class DBV
     	
     	if( in_array($revision, $revisionsToRun) ){
     		echo "Running '$step' single revision [$revision] ...".PHP_EOL;
+    		
+    		$this->_runRevisions($revision, $step);
     	}
     	else{
     		$revs = implode(', ', $revisionsToRun);
-    		echo "Running '$step' new revisions [$revs] ...".PHP_EOL;
+    		echo "Running '$step' all new revisions [$revs] ...".PHP_EOL;
+    		
+    		sort($revisionsToRun);
+    		foreach($revisionsToRun as $revision){
+    			$this->_runRevisions($revision, $step);
+    		}
     	}
     	
-    	foreach($revisionsToRun as $revision){
-    		$this->_runFiles($revision, $files, $step);
-    	}
+    	
 
     	//echo json_encode($revisionsToRun) ;
     	//$this->_json($revisionsToRun);
@@ -353,21 +358,27 @@ class DBV
     }
     
     /// CLI specific function (need to run PRE before ...)
-    protected function _runFiles($revision, $files, $step){
-    	$result = false;
+    protected function _runRevisions($revision, $step){
     	$files = $this->_getRevisionFiles($revision);
     	if(count($files)){
 	    	foreach($files as $file){
+	    		$filepath = DBV_REVISIONS_PATH . DS . $revision . DS . $file;
 		    	switch($step){
 		    		case DBV::CLI_STEP_ALL:
-		    				$result = $result && $this->_runFile($file);
-		    				echo "Executing $revision/$file ...".PHP_EOL;
+		    				echo "Executing [".$step."] $revision/$file ...".PHP_EOL;
+		    				if(!$this->_runFile($filepath)){
+		    					return false;
+		    				}
+		    				$this->_setRevisionIndex($revision.'/'.basename($file));
 		    			break;
 		    		case DBV::CLI_STEP_PRE: case DBV::CLI_STEP_POST:
 		    				if(preg_match("#^".$step."#", $file)){
-		    					$result = $result && $this->_runFile($file);
-		    					echo "Executing $revision/$file ...".PHP_EOL;
+		    					echo "Executing [".$step."] $revision/$file ...".PHP_EOL;
+		    					if(!$this->_runFile($filepath)){
+		    						return false;
+		    					}
 		    				}
+		    				$this->_setRevisionIndex($revision.'/'.basename($file));
 		    			break;
 		    	}
 	    	}
