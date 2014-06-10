@@ -88,17 +88,24 @@ $(function(){
 			url: 'index.php?a=addRevisionFolder',
 			data: {'revision': revision},
 			success: function(response){
-				render_messages('success', '#revisions', response.message);
+				if(response.ok){
+					render_messages('success', '#revisions', response.message);
 
-				$('#body_revisions').prepend(response.html);
+					$('#body_revisions').prepend(response.html);
 
-				/// Remove the save buttons
-				$(response.revision).each(function(value){
-					value = value.split('/')[0];
-					$('tr[data-revision='+value+'] button[data-role="editor-save"]').remove();
-				});
+					/// Remove the save buttons
+					$(response.revision).each(function(value){
+						value = value.split('/')[0];
+						$('tr[data-revision='+value+'] button[data-role="editor-save"]').remove();
+					});
 
-				reloadCodeMirror();
+					reloadCodeMirror();
+
+					$("#table-sorter").trigger("update"); 
+				}
+				else{
+					render_messages('error', '#revisions', response.message);
+				}
 			}
 		});
 	});

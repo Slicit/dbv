@@ -221,7 +221,13 @@ class DBV
     public function addRevisionFolderAction()
     {
     	$revisions = $this->_getAllRevisions();
-    	$revision = $_GET['revision'];
+    	$revision = intval($_GET['revision']);
+
+    	$revisionsDir = $this->_getRevisions();
+    	if(in_array($revision, $revisionsDir)){
+    		$this->_json(array('ok' => false, 'message' => __("Revision #{revision} already exists!", array('revision' => "<strong>$revision</strong>"))));
+    		return;
+    	}
 
     	$dir = DBV_REVISIONS_PATH . DS . $revision;
     	if (!@file_exists($dir)) {
