@@ -22,7 +22,7 @@
 	<div class="navbar navbar-static-top navbar-inverse">
 		<div class="navbar-inner">
 			<div class="container">
-				<a href="index.php" class="brand">DBV Fork<span></span></a>
+				<a href="index.php" class="brand"><?php echo DBV_TILE ?><span></span></a>
 				<ul class="nav pull-right">
 				</ul>
 			</div>

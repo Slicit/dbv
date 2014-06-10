@@ -19,6 +19,11 @@ define('DBV_USERNAME', 'dbv');
 define('DBV_PASSWORD', 'dbv');
 
 /**
+ * DBV Title
+ */
+ define('DBV_TILE', 'dbv.php');
+
+/**
  * @see http://dbv.vizuina.com/documentation/#writing-adapters
  */
 define('DB_ADAPTER', 'MySQL');

@@ -2,7 +2,7 @@
 
 	<div class="input-append pull-right">
 		<input type="text" id="revision_id" value="" class="input-large" placeholder="revision #id" />
-		<button id="add_revision" class="btn btn-success">New revision</button>
+		<button id="add_revision" class="btn btn-info">New revision</button>
 	</div>
 	
 	<div style="clear:both"></div>

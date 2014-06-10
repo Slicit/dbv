@@ -3,8 +3,8 @@
 
 body {
     font-size: 12px;
-    background: #252726 url(../images/bg.jpg);
-    background: #252726;
+    background: #fafafa url(../images/bg.jpg);
+    background: #fafafa;
 }
 :focus {
     outline: 0;
@@ -25,7 +25,7 @@ pre {
     background-color: rgba(255, 255, 255, 0.97);
     border-left: 1px solid white;
     border-radius: 4px;
-    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.5);
 }
 input[type="submit"] {
     font-size: 12px;
@@ -189,4 +189,58 @@ a.tracker {
 	margin-right: 20%;
 	margin-left: 20%;
 	width: auto;
+}
+
+.navbar, .navbar-inner, .navbar-inverse{
+	border-top: 1px solid #1e8cbc !important;
+	border-bottom: 1px solid #1e8cbc !important;
+	background-color: #2295c8 !important;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#41b5e8), to(#2295c8)) !important;
+	background-image: -webkit-linear-gradient(top, #41b5e8, #2295c8) !important;
+	background-image: -moz-linear-gradient(top, #41b5e8, #2295c8) !important;
+	background-image: -o-linear-gradient(top, #41b5e8, #2295c8) !important;
+	background-image: -ms-linear-gradient(top, #41b5e8, #2295c8) !important;
+	background-image: linear-gradient(top, #41b5e8, #2295c8) !important;
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#41b5e8', EndColorStr='#2295c8') !important;
+	box-shadow: inset 0 1px 0 #73d2fc !important;
+	-moz-box-shadow: inset 0 1px 0 #73d2fc !important;
+	-webkit-box-shadow: inset 0 1px 0 #73d2fc !important;
+	-ms-box-shadow: inset 0 1px 0 #73d2fc !important;
+	-o-box-shadow: inset 0 1px 0 #73d2fc !important;
+}
+
+.btn-primary{
+	border: 1px solid #1e8cbc !important;
+	-webkit-box-shadow: inset 0 1px 1px #7ed6f9 !important;
+	-moz-box-shadow: inset 0 1px 1px #7ed6f9 !important;
+	box-shadow: inset 0 1px 1px #7ed6f9 !important;
+	background: #40b4e8 !important;
+	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #40b4e8), color-stop(100%, #2295c8)) !important;
+	background-image: -webkit-linear-gradient(#40b4e8, #2295c8) !important;
+	background-image: -moz-linear-gradient(#40b4e8, #2295c8) !important;
+	background-image: -o-linear-gradient(#40b4e8, #2295c8) !important;
+	background-image: linear-gradient(#40b4e8, #2295c8) !important;
+	text-shadow: 1px 1px 2px #16688d !important;
+}
+
+.btn-info{
+	border: 1px solid #90a749 !important;
+	-webkit-box-shadow: inset 0 1px 1px #c3d364 !important;
+	-moz-box-shadow: inset 0 1px 1px #c3d364 !important;
+	box-shadow: inset 0 1px 1px #c3d364 !important;
+	color: white !important;
+	background: #9fb906 !important;
+	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #9fb906), color-stop(100%, #719012)) !important;
+	background-image: -webkit-linear-gradient(#9fb906, #719012) !important;
+	background-image: -moz-linear-gradient(#9fb906, #719012) !important;
+	background-image: -o-linear-gradient(#9fb906, #719012) !important;
+	background-image: linear-gradient(#9fb906, #719012) !important;
+}
+
+button {
+	font-size: 12px !important;
+}
+
+.CodeMirror {
+	width: auto !important;
 }
