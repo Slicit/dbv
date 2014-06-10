@@ -202,7 +202,12 @@ class DBV
             $this->_404();
         }
 
-        $content = $_POST['content'];
+        $content = trim($_POST['content']);
+        if(empty($content)){
+        	$this->_json(array(
+        			'error' => __("SQL can't be empty, ensure you write at least a comment.", array())
+        	));
+        }
 
         if (!@file_put_contents($path, $content)) {
             $this->_json(array(
@@ -220,7 +225,7 @@ class DBV
 
     	$dir = DBV_REVISIONS_PATH . DS . $revision;
     	if (!@file_exists($dir)) {
-    		if (!@mkdir($dir)){
+    		if (!@mkdir($dir, 0777)){
     			$this->_json(array('ok' => false, 'message' => __("Cannot create revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
     			return;
     		}
@@ -228,7 +233,6 @@ class DBV
     			file_put_contents($dir.'/pre.sql', '-- auto-generated pre.sql');
     			file_put_contents($dir.'/post.sql', '-- auto-generated post.sql');
     			
-    			chmod($dir, 0777);
     			chmod($dir.'/pre.sql', 0777);
     			chmod($dir.'/post.sql', 0777);
     		}
@@ -377,8 +381,8 @@ class DBV
 		    					if(!$this->_runFile($filepath)){
 		    						return false;
 		    					}
+		    					$this->_setRevisionIndex($revision.'/'.basename($file));
 		    				}
-		    				$this->_setRevisionIndex($revision.'/'.basename($file));
 		    			break;
 		    	}
 	    	}
@@ -611,6 +615,18 @@ class DBV
     			break;
     	}
     }
+    
+    protected function _isRanFile($revisionFile)
+    {
+    	switch (DBV_REVISION_INDEX) {
+    		case 'ALL':
+    			return in_array($revisionFile, $this->_getAllRevisions());
+    			break;
+    		case 'LAST': default:
+    			$this->error("Incompatible revision index, you must use ALL.");
+    			break;
+    	}
+    }
 
     protected function _getRevisionFiles($revision)
     {
@@ -699,6 +715,7 @@ class DBV
         if (!($instance instanceof self)) {
             $instance = new self();
         }
+        
         return $instance;
     }
 

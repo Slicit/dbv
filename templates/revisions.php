@@ -51,9 +51,8 @@ $(function(){
 		var files = $(this).parents('td').children('.revision-files');
 		files.toggle();
 
-		var textareas = $('textarea[data-role="editor"]');
-		textareas.each( function(){
-			this['data-editor'].refresh();
+		$('textarea[data-role="editor"]').each( function(){
+			$(this).data('editor').refresh();
 		});
 	});
 
@@ -65,6 +64,7 @@ $(function(){
 		}
 	});
 
+	/** Toggle checkboxes to select "to run" revisions */
 	$('#toggle-cb').on('click', function(){
 		var toggleValue = $(this).prop('checked');
 		$('.toggle-cb').each(function(){
@@ -73,15 +73,14 @@ $(function(){
 			}
 		});
 	});
-	
+
+	/** Handle the action to add a new revision */
 	$(document).on('click', '#add_revision', function(event){
 		event.preventDefault();
 
-		clear_messages('revisions');
-
 		var revision = $('#revision_id').val();
 		if($.trim(revision) == ''){
-			render_messages('error', 'revisions', '<?php echo __('Revision ID is empty !') ?>');
+			render_messages('error', '#revisions', '<?php echo __('Revision ID is empty !') ?>');
 			return;
 		}
 
@@ -89,7 +88,7 @@ $(function(){
 			url: 'index.php?a=addRevisionFolder',
 			data: {'revision': revision},
 			success: function(response){
-				render_messages('success', 'revisions', response.message);
+				render_messages('success', '#revisions', response.message);
 
 				$('#body_revisions').prepend(response.html);
 
@@ -104,25 +103,24 @@ $(function(){
 		});
 	});
 
-	/// Save SQL modifications
+	/** Save SQL files modifications */
 	$(document).on('click', 'button[data-role="editor-save"]', function(event){
 		var button = $(this);
-		var editor = button.parents('.heading').next('textarea[data-editor]').data('editor');
+		var editor = $(button.parents('.heading').next('textarea').get(0)).data('editor');
 		var container = button.parents('[id^="revision-file"]');
 
-		button.disable();
-
-		clear_messages(container);
+		button.attr('disabled', 'disabled');
 
 		$.ajax({
 			url: 'index.php?a=saveRevisionFile',
+			type: 'POST',
 			data: {
 				revision: button.data('revision'),
 				file: button.data('file'),
 				content: editor.getValue()
 			},
 			success: function(response){
-				button.enable();
+				button.removeAttr('disabled');
 
 				if (response.error) {
 					return render_messages('error', container, response.error);
@@ -139,8 +137,6 @@ $(function(){
 
 		var form = $(this);
 		var data = form.serialize(true);
-
-		clear_messages(this);
 
 		console.log(data);
 		return;

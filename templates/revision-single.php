@@ -28,12 +28,16 @@
 						$extension = pathinfo($file, PATHINFO_EXTENSION);
 						$content = htmlentities($this->_getRevisionFileContents($revision, $file), ENT_QUOTES, 'UTF-8');
 						$lines = substr_count($content, "\n");
+						$ranFile = $this->_isRanFile($revision.'/'.$file);
 					?>
 					<div id="revision-file-<?php echo $revision; ?>-<?php echo ++$i; ?>">
 						<div class="log"></div>
 						<div class="alert alert-info heading">
 							<?php if(!$ran): ?>
-								<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px;"><?php echo __('Save file') ?></button>
+								<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px; margin-left: 6px;"><?php echo __('Save file') ?></button>
+							<?php endif; ?>
+							<?php if(!$ranFile): ?>
+								<button data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px; margin-left: 6px;"><?php echo __('Run file') ?></button>
 							<?php endif; ?>
 							<strong class="alert-heading"><?php echo $file; ?></strong>
 						</div>
