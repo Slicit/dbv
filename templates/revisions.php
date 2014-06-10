@@ -143,12 +143,60 @@ $(function(){
 		event.preventDefault();
 
 		var form = $(this);
-		var data = form.serialize(true);
 
-		console.log(data);
-		return;
+		$.ajax({
+			url: 'index.php?a=revisions',
+			type: 'POST',
+			data: form.serializeArray(),
+			success: function(response){
+				if (response.messages.error) {
+                    render_messages('error', '#revisions', response.messages.error, '<?php echo __('The following errors occured:'); ?>');
+                }
 
+                if (response.messages.success) {
+                    render_messages('success', '#revisions', response.messages.success, '<?php echo __('The following actions completed successfuly:'); ?>');
+                }
 
+                <?php if(DBV_REVISION_INDEX == 'LAST'): ?>
+                var revision = parseInt(response.revision);
+                if (!isNaN(revision)) {
+                	var rows = form.find('tr[data-revision]');
+
+            		rows.each(function(){
+                		var row = $(this);
+                		row.removeClass('ran');
+            			if (row.data('revision') > revision) {
+            				return;
+            			}
+            			row.addClass('ran');
+            			row.find('.revision-files').first().hide();
+            			row.find('input[type="checkbox"]').first().prop('checked', false);
+            		});
+                }
+                <?php else: ?>
+                revisions = [];
+                $(response.revision).each(function(index, value){
+                    var id = value.split('/')[0];
+                    if($.inArray(parseInt(id), revisions) == -1){
+                    	revisions.push(parseInt(id));
+                    }
+                });
+				var rows = form.find('tr[data-revision]');
+				rows.each(function(){
+					var row = $(this);
+					if($.inArray(parseInt(row.data('revision')), revisions) != -1){ 
+						row.addClass('ran');
+                		row.find('input[type="checkbox"]').first().prop('checked', false);
+					}
+					else{
+						row.removeClass('ran');
+            			row.find('input[type="checkbox"]').first().prop('checked', true);
+					}
+				});	
+                <?php endif; ?>
+			}
+		});
+	
 		
 	});
 

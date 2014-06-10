@@ -17,7 +17,11 @@ function render_messages(type, container, messages, heading) {
 		message = '<ul class="unstyled nomargin">'+message+'</ul>';
 	}
 	
-	if(typeof heading == 'undefined'){
+	
+	if(typeof heading != 'undefined'){
+		heading = '<strong>'+heading+'</strong>';
+	}
+	else{
 		heading = '';
 	}
 
@@ -30,6 +34,13 @@ function render_messages(type, container, messages, heading) {
 
     $($(container).find('.log').get(0)).append( $(alert) );
 }
+
+$(function(){
+	/** Close the alert */
+	$(document).on('click', 'button.close', function(){
+		$(this).parents('div.alert').remove();
+	});
+});
 
 /** Reload codemirror editors */
 function reloadCodeMirror(){
