@@ -13,7 +13,7 @@
         <table class="table table-condensed table-striped table-bordered">
             <thead>
                 <tr>
-                    <th style="width: 13px;"><input type="checkbox" style="margin-top: 0;" /></th>
+                    <!--th style="width: 13px;"><input type="checkbox" style="margin-top: 0;" /></t-->
                     <th><?php echo __('Schema object'); ?></th>
                     <th style="text-align: center; width: 50px;"><?php echo __('In DB'); ?></th>
                     <th style="text-align: center; width: 50px;"><?php echo __('On disk'); ?></th>
@@ -22,9 +22,9 @@
             <tbody>
                 <?php foreach ($this->schema as $name => $flags) { ?>
                     <tr>
-                        <td class="center">
+                        <!--td class="center">
                             <input type="checkbox" name="schema[]" value="<?php echo $name; ?>" id="object-<?php echo $name; ?>" style="margin-top: 0;" />
-                        </td>
+                        </td-->
                         <td>
                             <label for="object-<?php echo $name; ?>">
                                 <?php echo $name; ?>
@@ -49,8 +49,10 @@
             </tbody>
         </table>
 
+        <!-- 
         <button data-role="create" class="btn btn-primary btn-mini"><?php echo __('Push to database'); ?></button>
         <button data-role="export" class="btn btn-primary btn-mini"><?php echo __('Export to disk'); ?></button>
+    	 -->
     </form>
 
     <script type="text/javascript">

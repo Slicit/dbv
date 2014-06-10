@@ -36,7 +36,7 @@
 							<?php if(!$ran): ?>
 								<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px; margin-left: 6px;"><?php echo __('Save file') ?></button>
 							<?php endif; ?>
-							<?php if(!$ranFile): ?>
+							<?php if(false && !$ranFile): ?>
 								<button data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px; margin-left: 6px;"><?php echo __('Run file') ?></button>
 							<?php endif; ?>
 							<strong class="alert-heading"><?php echo $file; ?></strong>

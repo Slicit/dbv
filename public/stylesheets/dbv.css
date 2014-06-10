@@ -184,3 +184,9 @@ a.tracker {
 	background-image: url(../images/desc.gif);
 	background-position: 70px 11px;
 }
+
+.container {
+	margin-right: 20%;
+	margin-left: 20%;
+	width: auto;
+}

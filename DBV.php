@@ -189,7 +189,7 @@ class DBV
     public function saveRevisionFileAction()
     {
         $revision = intval($_POST['revision']);
-        if (preg_match('/^[a-z0-9\._]+$/i', $_POST['file'])) {
+        if (preg_match('/^[a-z0-9\._-]+$/i', $_POST['file'])) {
             $file = $_POST['file'];
         } else {
             $this->_json(array(

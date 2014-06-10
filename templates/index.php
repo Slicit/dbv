@@ -22,9 +22,8 @@
 	<div class="navbar navbar-static-top navbar-inverse">
 		<div class="navbar-inner">
 			<div class="container">
-				<a href="index.php" class="brand">dbv<span>.php</span></a>
+				<a href="index.php" class="brand">DBV Fork<span></span></a>
 				<ul class="nav pull-right">
-					<li><a href="http://dbv.vizuina.com"><?php echo __('Check for updates'); ?></a></li>
 				</ul>
 			</div>
 		</div>
@@ -34,12 +33,7 @@
 			<?php $this->_view('log'); ?>
 		</div>
 		<div class="row-fluid">
-			<div class="span4">
-				<div id="left">
-					<?php $this->_view('schema'); ?>
-				</div>
-			</div>
-			<div class="span8">
+			<div class="span12">
 				<div id="right">
 					<?php $this->_view('revisions'); ?>
 				</div>
