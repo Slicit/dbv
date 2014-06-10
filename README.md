@@ -1,6 +1,14 @@
 Database version control, made easy!
 =
 
+Features:
+	- powered by jQuery instead of Prototype
+	- lighter theme
+	- removed schema (mostly unused btw !)
+	- input to create new revisions with default files
+	- workflow with pre/post prefixes
+	- CLI tool, which is useful to run pre/post routines and invididual updates
+	
 **dbv.php** is a database version control web application featuring schema management, revision scripts, and more!
 
 Check out the **[project website](http://dbv.vizuina.com)** for more details, features and documentation.
