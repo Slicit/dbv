@@ -2,6 +2,10 @@
 
 define('CLI_ROOT_PATH', dirname(__FILE__));
 
+function error($message){
+	die($message.PHP_EOL);
+}
+
 require_once CLI_ROOT_PATH . DIRECTORY_SEPARATOR . 'config.php';
 require_once CLI_ROOT_PATH . DIRECTORY_SEPARATOR . 'lib/functions.php';
 require_once CLI_ROOT_PATH . DIRECTORY_SEPARATOR . 'DBV.php';
@@ -10,9 +14,10 @@ if(empty($argv[1]) || $argv[1] == 'help'){
 	echo "DBV Command-Line Tool
 			
 Usage 
-	php -f cli.php <pre|post|all> [revision_id]
+	php -f cli.php <update> <pre|post|all> [revision_id]
 			
-	pre|post|all	Defines the segment to run
+	update			The action to run
+	pre|post|all	Defines the SQL Workflow segment to run
 	revision_id		Pass a single revision id to run, otherwise, will run all new revisions
 			
 ";
@@ -21,24 +26,35 @@ Usage
 $dbv = DBV::instance();
 
 /// Définition des arguments pour l'action
-$revision = 0;
+$action = 'help';
 $step = DBV::CLI_STEP_ALL;
+$revision = 0;
 $force = false;
 
-switch($argv[1]){
+switch($argv[2]){
 	case DBV::CLI_STEP_ALL: case DBV::CLI_STEP_PRE: case DBV::CLI_STEP_POST:
-			$step =  $argv[1];
+			$step =  $argv[2];
 		break;
 	default:
-		die('Unknown step');
+		error('Unknown step');
 }
 
-if(isset($argv[2])){
-	$revision = $argv[2];
+if(isset($argv[3])){
+	$revision = $argv[3];
 }
 
-if(isset($argv[3]) && $argv[3] == '--force'){
+if(isset($argv[4]) && $argv[4] == '--force'){
 	$force = true;
 }
 
-$dbv->_cliAction($revision, $step, $force);
+switch($argv[1]){
+	case 'update':
+			$dbv->_cliUpdate($revision, $step, $force);
+		break;
+	case 'extract':
+			error('Extract is not implemented yet');
+		break;
+	default:
+		error('Unknown action');
+}
+

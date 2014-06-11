@@ -247,7 +247,7 @@ class DBV
     	$this->_json(array('ok' => true, 'message' => __("Revision #{revision} successfully added!", array('revision' => "<strong>$revision</strong>")), 'html' => $this->_templateRevision($revision)));
     }
     
-    public function _cliAction($revision = 0, $step = self::CLI_STEP_ALL){
+    public function _cliUpdate($revision = 0, $step = self::CLI_STEP_ALL){
     	
     	$ranRevisions = $this->_getAllRevisions();
     	
@@ -280,6 +280,9 @@ class DBV
     		echo "Nothing to run ...".PHP_EOL;
     	}
     }
+    
+    /** Extract & Compile all the SQL to run */
+    public function _cliExtract(){}
     
     /** This looks quite barbarian but ... well */
     public function _templateRevision($revision){
