@@ -7,6 +7,13 @@
 
 	$files = $this->_getRevisionFiles($revision);
 	$class_files = count($files) ? 'files' : '';
+	
+	$partialRun = false;
+	foreach($files as $file){
+		if($this->_isRanFile($revision.'/'.$file)){
+			$partialRun = true;
+		}
+	}
 ?>
 <tr data-revision="<?php echo $revision; ?>"<?php echo count($class) ? ' class="' . implode(' ', $class) . '"'  : ''; ?>>
 	<td class="center">
@@ -15,6 +22,8 @@
 	<td>
 		<h3 class="nomargin">
 			<a href="javascript:" class="revision-handle <?php echo $class_files; ?>"><?php echo $revision; ?></a>
+			<?php if(!$ran && $partialRun): ?><span class="info"><?php echo __('partially executed') ?></span><?php endif; ?>
+			
 			<?php if(DBV_TRACKER_LINK === true): ?>
 			<a href="<?php echo str_replace('%id%', $revision, DBV_TRACKER_URI) ?>" class="tracker" target="_blank"><?php echo __('Tracker') ?></a>
 			<?php endif; ?>
@@ -32,14 +41,14 @@
 					?>
 					<div id="revision-file-<?php echo $revision; ?>-<?php echo ++$i; ?>">
 						<div class="log"></div>
-						<div class="alert alert-info heading">
-							<?php if(!$ran): ?>
+						<div class="alert <?php echo($ranFile)? 'alert-info alert-exec': 'alert-info'; ?> heading">
+							<?php if(!$ranFile): ?>
 								<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px; margin-left: 6px;"><?php echo __('Save file') ?></button>
 							<?php endif; ?>
 							<?php if(false && !$ranFile): ?>
 								<button data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px; margin-left: 6px;"><?php echo __('Run file') ?></button>
 							<?php endif; ?>
-							<strong class="alert-heading"><?php echo $file; ?></strong>
+							<strong class="alert-heading"><?php echo $file; ?><?php if($ranFile){ echo __(' - executed file.'); } ?></strong>
 						</div>
 						<textarea data-role="editor" name="revision_files[<?php echo $revision; ?>][<?php echo $file; ?>]" rows="<?php echo $lines + 1; ?>"><?php echo $content; ?></textarea>
 					</div>

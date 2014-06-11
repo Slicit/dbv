@@ -144,6 +144,10 @@ $(function(){
 
 		var form = $(this);
 
+		if(!window.confirm('Are you sure ?')){
+			return;
+		}
+
 		$.ajax({
 			url: 'index.php?a=revisions',
 			type: 'POST',
