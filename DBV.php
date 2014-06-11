@@ -230,6 +230,8 @@ class DBV
     	}
 
     	$dir = DBV_REVISIONS_PATH . DS . $revision;
+    	
+    	umask(0); /// override system umask to force 777 (revisions & files need to be linked/unlinked)
     	if (!@file_exists($dir)) {
     		if (!@mkdir($dir, 0777)){
     			$this->_json(array('ok' => false, 'message' => __("Cannot create revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
