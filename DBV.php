@@ -249,16 +249,25 @@ class DBV
     
     public function _cliAction($revision = 0, $step = self::CLI_STEP_ALL){
     	
-    	$ranRevisions = $this->_getAllRevisions(); /// Toutes les revisions executées
-    	$allRevisions = $this->_getRevisions(); /// Toutes les revisions
-    	$revisionsToRun = array_diff($allRevisions, $ranRevisions); /// Différence (revisions a lancer)
+    	$ranRevisions = $this->_getAllRevisions();
+    	
+    	$_ranRevisions = array();
+    	foreach($ranRevisions as $ranRevision){
+    		$rev = explode('/', $ranRevision);
+    		if(!in_array($rev[0], $_ranRevisions)){
+    			array_push($_ranRevisions, $rev[0]);
+    		}
+    	}
+    	
+    	$allRevisions = $this->_getRevisions();
+    	$revisionsToRun = array_diff($allRevisions, $_ranRevisions);
     	
     	if( in_array($revision, $revisionsToRun) ){
     		echo "Running '$step' single revision [$revision] ...".PHP_EOL;
     		
     		$this->_runRevisions($revision, $step);
     	}
-    	else{
+    	elseif(!empty($revisionsToRun)){
     		$revs = implode(', ', $revisionsToRun);
     		echo "Running '$step' all new revisions [$revs] ...".PHP_EOL;
     		
@@ -267,64 +276,9 @@ class DBV
     			$this->_runRevisions($revision, $step);
     		}
     	}
-    	
-    	
-
-    	//echo json_encode($revisionsToRun) ;
-    	//$this->_json($revisionsToRun);
-    	
-    	
-    	/*$final_revision = isset($_POST['revision']) ? intval($_POST['revision']) : 0;
-    	$current_revision = $this->_getCurrentRevision();
-    	$revisions = $this->_getRevisions();
-    
-    	foreach($revisions as $revision){
-    
-    		//move forward
-    		if($revision > $current_revision && $revision <= $final_revision){
-    
-    			$files = $this->_getRevisionFiles($revision);
-    			if (count($files)) {
-    				foreach ($files as $file) {
-    					$file = DBV_REVISIONS_PATH . DS . $revision . DS . $file;
-    					if (!$this->_runFile($file)) {
-    						break 2;
-    					}
-    				}
-    			}
-    
-    			//rollback
-    		}elseif($revision <= $current_revision && $revision > $final_revision){
-    
-    			$files = $this->_getRevisionRollbackFiles($revision);
-    
-    			if (count($files)) {
-    				foreach ($files as $file) {
-    					$file = DBV_REVISIONS_PATH . DS . $revision . DS . 'rollback' . DS . $file;
-    					if (!$this->_runFile($file)) {
-    						break 2;
-    					}
-    				}
-    			}
-    		}
+    	else{
+    		echo "Nothing to run ...".PHP_EOL;
     	}
-    
-    	$this->_setCurrentRevision($final_revision);
-    
-    	$this->confirm(__("Jumped to revision #{revision}", array('revision' => "<strong>$final_revision</strong>")));
-    	if ($this->_isXMLHttpRequest()) {
-    		$return = array(
-    				'messages' => array(),
-    				'revision' => $this->_getCurrentRevision()
-    		);
-    		foreach ($this->_log as $message) {
-    			$return['messages'][$message['type']][] = $message['message'];
-    		}
-    		$this->_json($return);
-    
-    	} else {
-    		$this->indexAction();
-    	}*/
     }
     
     /** This looks quite barbarian but ... well */
