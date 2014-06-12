@@ -14,10 +14,10 @@ if(empty($argv[1]) || $argv[1] == 'help'){
 	echo "DBV Command-Line Tool
 			
 Usage 
-	php cli.php <update> <pre|post|all> [revision_id]
+	php cli.php <update|extract> <pre|post|all> [revision_id]
 			
-	update			The action to run
-	pre|post|all	Defines the SQL Workflow segment to run
+	update|extract		The action to run
+	pre|post|all		Defines the SQL Workflow segment to run
 	revision_id		Pass a single revision id to run, otherwise, will run all new revisions
 			
 ";
