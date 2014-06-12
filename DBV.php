@@ -364,24 +364,29 @@ class DBV
     	if(count($files)){
 	    	foreach($files as $file){
 	    		$filepath = DBV_REVISIONS_PATH . DS . $revision . DS . $file;
-		    	switch($step){
-		    		case DBV::CLI_STEP_ALL:
-		    				$this->_cliMessage("-- Executing $revision/$file");
-		    				if(!$this->_runFile($filepath)){
-		    					return false;
-		    				}
-		    				$this->_setRevisionIndex($revision.'/'.basename($file));
-		    			break;
-		    		case DBV::CLI_STEP_PRE: case DBV::CLI_STEP_POST:
-		    				if(preg_match("#^".$step."#", $file)){
-		    					$this->_cliMessage("-- Executing $revision/$file");
-		    					if(!$this->_runFile($filepath)){
-		    						return false;
-		    					}
-		    					$this->_setRevisionIndex($revision.'/'.basename($file));
-		    				}
-		    			break;
-		    	}
+	    		if($this->_isRanFile($revision."/".$file)){
+	    			$this->_cliMessage("-- File $revision/$file already executed");
+	    		}
+	    		else{
+			    	switch($step){
+			    		case DBV::CLI_STEP_ALL:
+			    				$this->_cliMessage("-- Executing $revision/$file");
+			    				if(!$this->_runFile($filepath)){
+			    					return false;
+			    				}
+			    				$this->_setRevisionIndex($revision.'/'.basename($file));
+			    			break;
+			    		case DBV::CLI_STEP_PRE: case DBV::CLI_STEP_POST:
+			    				if(preg_match("#^".$step."#", $file)){
+			    					$this->_cliMessage("-- Executing $revision/$file");
+			    					if(!$this->_runFile($filepath)){
+			    						return false;
+			    					}
+			    					$this->_setRevisionIndex($revision.'/'.basename($file));
+			    				}
+			    			break;
+			    	}
+	    		}
 	    	}
     	}
     	return $result;
@@ -622,7 +627,7 @@ class DBV
      * @return boolean
      */
     protected function _isRan($revision)
-    {
+    {    	
     	switch (DBV_REVISION_INDEX) {
     		case 'LAST':
     			return ($this->_getCurrentRevision() >= $revision);
