@@ -40,10 +40,11 @@ class DBV
 	const CLI_STEP_PRE = 'pre';
 	const CLI_STEP_POST = 'post';
 	
-
     protected $_action = "index";
     protected $_adapter;
     protected $_log = array();
+    
+    protected $_dry_run = false;
 
     public function authenticate()
     {
@@ -249,7 +250,7 @@ class DBV
     	$this->_json(array('ok' => true, 'message' => __("Revision #{revision} successfully added!", array('revision' => "<strong>$revision</strong>")), 'html' => $this->_templateRevision($revision)));
     }
     
-    public function _cliUpdate($revision = 0, $step = self::CLI_STEP_ALL){
+    /**public function _cliUpdate($revision = 0, $step = self::CLI_STEP_ALL){
     	
     	$ranRevisions = $this->_getAllRevisions();
     	
@@ -281,10 +282,41 @@ class DBV
     	else{
     		echo "Nothing to run ...".PHP_EOL;
     	}
+    }*/
+    
+    public function _cliUpdate($revision = 0, $step = self::CLI_STEP_ALL, $force = false){
+    	$revisions_to_run = $this->_getRevisionsToRun();
+    	
+    	if($revision != 0){
+    		$this->_cliMessage("Running single revision [$revision] ...");
+    		
+    		$this->_runRevision($revision, $step);
+    	}
+    	elseif(!empty($revisions_to_run)){
+    		$revs = implode(', ', $revisions_to_run);
+    		$this->_cliMessage("Running all new revisions [$revs] ...");
+    		
+    		foreach($revisions_to_run as $revision){
+    			$this->_runRevision($revision, $step);
+    		}
+    	}
+    	else{
+    		$this->_cliMessage("Nothing to run ...");
+    	}
+
+    	$this->_cliMessage("Complete.");
     }
     
     /** Extract & Compile all the SQL to run */
-    public function _cliExtract(){}
+    public function _cliExtract($revision = 0, $step = self::CLI_STEP_ALL, $force = false){
+    	$this->_setDryRun(true);
+    	
+    	$this->_cliUpdate($revision, $step, $force);
+    }
+    
+    public function _cliMessage($message){
+    	echo $message.PHP_EOL;
+    }
     
     /** This looks quite barbarian but ... well */
     public function _templateRevision($revision){
@@ -327,14 +359,14 @@ class DBV
     }
     
     /// CLI specific function (need to run PRE before ...)
-    protected function _runRevisions($revision, $step){
+    protected function _runRevision($revision, $step){
     	$files = $this->_getRevisionFiles($revision);
     	if(count($files)){
 	    	foreach($files as $file){
 	    		$filepath = DBV_REVISIONS_PATH . DS . $revision . DS . $file;
 		    	switch($step){
 		    		case DBV::CLI_STEP_ALL:
-		    				echo "Executing [".$step."] $revision/$file ...".PHP_EOL;
+		    				$this->_cliMessage("-- Executing $revision/$file");
 		    				if(!$this->_runFile($filepath)){
 		    					return false;
 		    				}
@@ -342,7 +374,7 @@ class DBV
 		    			break;
 		    		case DBV::CLI_STEP_PRE: case DBV::CLI_STEP_POST:
 		    				if(preg_match("#^".$step."#", $file)){
-		    					echo "Executing [".$step."] $revision/$file ...".PHP_EOL;
+		    					$this->_cliMessage("-- Executing $revision/$file");
 		    					if(!$this->_runFile($filepath)){
 		    						return false;
 		    					}
@@ -368,7 +400,14 @@ class DBV
                 }
 
                 try {
-                    $this->_getAdapter()->query($content);
+                	if(!$this->_dry_run){
+                		$this->_getAdapter()->query($content);
+                	}
+                	else{
+                		$this->_cliMessage($content);
+                		$this->_cliMessage("");
+                	}
+                    
                     return true;
                 } catch (DBV_Exception $e) {
                     $this->error("[{$e->getCode()}] {$e->getMessage()} in <strong>$file</strong>");
@@ -481,6 +520,18 @@ class DBV
         }
     }
     
+    /**
+     * Alias for _getAllRevisions
+     * 
+     * @return Ambigous <multitype:, mixed>
+     */
+    protected function _getAllRanFiles(){
+    	return $this->_getAllRevisions();
+    }
+    
+    /**
+     * TODO: method name should be "_getAllRanFiles()"
+     */
     protected function _getAllRevisions()
     {
     	switch (DBV_REVISION_STORAGE) {
@@ -490,7 +541,7 @@ class DBV
     				$revisions = json_decode(file_get_contents($file));
     				return is_array($revisions) ? $revisions : array();
     			}
-    			return 0;
+    			return array();
     			break;
     		case 'ADAPTER':
     			$revisions = json_decode($this->_getAdapter()->getCurrentRevision());
@@ -503,6 +554,10 @@ class DBV
     }
     
     protected function _setRevisionIndex($revision, $current_revision = null){
+    	if($this->_dry_run){
+    		return;
+    	}
+    	
     	switch (DBV_REVISION_INDEX) {
     		case 'LAST':
     			if($revision >= $current_revision)
@@ -560,6 +615,12 @@ class DBV
     	}
     }
     
+    /**
+     * Checks if a revision is executed, by checking the execution of all it files.
+     * 
+     * @param integer $revision
+     * @return boolean
+     */
     protected function _isRan($revision)
     {
     	switch (DBV_REVISION_INDEX) {
@@ -581,6 +642,12 @@ class DBV
     	}
     }
     
+    /**
+     * Checks if a specific file is executed
+     * 
+     * @param string $revisionFile
+     * @return boolean
+     */
     protected function _isRanFile($revisionFile)
     {
     	switch (DBV_REVISION_INDEX) {
@@ -588,11 +655,17 @@ class DBV
     			return in_array($revisionFile, $this->_getAllRevisions());
     			break;
     		case 'LAST': default:
-    			$this->error("Incompatible revision index, you must use ALL.");
+    			$this->error("Incompatible revision index, you must use ALL for this type to work.");
     			break;
     	}
     }
 
+    /**
+     * Find all the files for a given revision
+     * 
+     * @param integer $revision
+     * @return array
+     */
     protected function _getRevisionFiles($revision)
     {
         $dir = DBV_REVISIONS_PATH . DS . $revision;
@@ -616,6 +689,31 @@ class DBV
         }
 
         return false;
+    }
+    
+    protected function _getRevisionsToRun(){
+    	$ran_files = $this->_getAllRanFiles();
+    	$all_revisions = $this->_getRevisions();
+
+    	$to_run_revisions = array();
+    	foreach($all_revisions as $revision){
+    		$files = $this->_getRevisionFiles($revision);
+    		$is_ran = true;
+    		foreach($files as $file){
+    			$is_ran = $is_ran && $this->_isRanFile($revision.'/'.$file);
+    		}
+    		if(!$is_ran){
+    			array_push($to_run_revisions, $revision);
+    		}
+    	}
+    	
+    	sort($to_run_revisions);
+    	
+    	return $to_run_revisions;
+    }
+    
+    public function _setDryRun($dry){
+    	$this->_dry_run = $dry;
     }
 
     public function log($item)
@@ -669,17 +767,33 @@ class DBV
 
         return false;
     }
+    
+    private function _routine(){
+    	
+    	/// Ensure the revision file exists, otherwise create it.
+    	if(DBV_REVISION_STORAGE == 'FILE'){
+    		$file = DBV_META_PATH . DS . 'revision';
+    		if(!file_exists($file)){
+    			touch($file);
+    			umask(0);
+    			chmod($file, 0777);
+    		}
+    	}
+    	
+    }
 
     /**
      * Singleton
      * @return DBV
      */
     static public function instance()
-    {
+    {	
         static $instance;
         if (!($instance instanceof self)) {
             $instance = new self();
         }
+        
+        $instance->_routine();
         
         return $instance;
     }

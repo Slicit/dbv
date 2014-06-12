@@ -14,7 +14,7 @@ if(empty($argv[1]) || $argv[1] == 'help'){
 	echo "DBV Command-Line Tool
 			
 Usage 
-	php -f cli.php <update> <pre|post|all> [revision_id]
+	php cli.php <update> <pre|post|all> [revision_id]
 			
 	update			The action to run
 	pre|post|all	Defines the SQL Workflow segment to run
@@ -52,7 +52,7 @@ switch($argv[1]){
 			$dbv->_cliUpdate($revision, $step, $force);
 		break;
 	case 'extract':
-			error('Extract is not implemented yet');
+			$dbv->_cliExtract($revision, $step, $force);
 		break;
 	default:
 		error('Unknown action');
