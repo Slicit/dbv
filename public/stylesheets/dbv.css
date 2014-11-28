@@ -91,6 +91,10 @@ a.tracker {
 .revision-files .alert-success, .revision-files .alert-error {
     margin: 5px 0 0 0;
 }
+.revision-files {
+	width: 795px;
+	max-width: 795px;
+}
 .btn-mini {
     font-size: 12px !important;
 }

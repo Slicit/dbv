@@ -674,15 +674,33 @@ class DBV
     protected function _getRevisionFiles($revision)
     {
         $dir = DBV_REVISIONS_PATH . DS . $revision;
-        $return = array();
+        $pres = array();
+        $posts = array();
 
         foreach (new DirectoryIterator($dir) as $file) {
             if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'sql') {
-                $return[] = $file->getBasename();
+            	$basename = $file->getBasename();
+            	if($basename == 'pre.sql' || $basename == 'post.sql'){}
+            	elseif(strpos($basename, 'pre') !== false){
+            		$pres[] = $file->getBasename();
+            	}
+            	elseif(strpos($basename, 'post') !== false){
+            		$posts[] = $file->getBasename();
+            	}
             }
         }
-
-        rsort($return, SORT_STRING); /// Modified sort to get pre > post
+        
+        /** Sorting individuals steps*/
+        natsort($pres);
+        natsort($posts);
+        
+        /** Appending missing pre.sql/post.sql */
+        array_unshift($pres, 'pre.sql');
+        array_unshift($posts, 'post.sql');
+       	
+       	/** Merging the resulting array */
+       	$return = array_merge($pres, $posts);
+        
         return $return;
     }
 
